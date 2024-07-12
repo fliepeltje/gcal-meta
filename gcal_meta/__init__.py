@@ -1,12 +1,14 @@
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
 
-from ics import Calendar, Event
-
-from typing import Type, TypeVar
+from types import UnionType
+from typing import Type, TypeVar, Protocol
 
 T = TypeVar("T")
 Values = list[tuple[str, str]]
+
+class Event(Protocol):
+    description: str
 
 @dataclass
 class GcalEvent:
@@ -36,3 +38,33 @@ class GcalEvent:
             key, _, value = line.strip().partition(":")
             values.append((key.strip(), value.strip()))
         return values
+
+    @staticmethod
+    def _cast_values_to_type(clas: Type[T], values: Values) -> T:
+        create_args = {}
+        annotations = clas.__annotations__
+        for key, val_type in annotations.items():
+            if isinstance(val_type, UnionType) and type(None) in val_type.__args__:
+                create_args[key] = None
+            elif hasattr(val_type, "sort"):
+                create_args[key] = []
+        for key, val in values:
+            val_type = annotations[key]
+            if isinstance(val_type, UnionType):
+                for union_type in [x for x in val_type.__args__]:
+                    try:
+                        create_args[key] = union_type(val)
+                        break
+                    except:
+                        continue
+            elif key in create_args and isinstance(create_args[key], list):
+                create_args[key].append(val)
+            else:
+                create_args[key] = val_type(val)
+        return clas(**create_args)
+    
+    @classmethod
+    def from_event(cls, t: Type[T], event: Event) -> "GcalEvent":
+        values = cls._parse_description(event.description)
+        meta = cls._cast_values_to_type(t, values)
+        return GcalEvent(event=Event, meta=meta)
