@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "gcal-meta"
+version = "0.1.0"
+description = ""
+authors = ["Donatas Rasiukevicius <donatas@fly.io>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+ics = "^0.7.2"
+html2text = "^2024.2.26"
+nltk = "^3.8.1"
+bs4 = "^0.0.2"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
