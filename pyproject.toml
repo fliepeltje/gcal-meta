@@ -7,9 +7,6 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-ics = "^0.7.2"
-html2text = "^2024.2.26"
-nltk = "^3.8.1"
 bs4 = "^0.0.2"
 
 
